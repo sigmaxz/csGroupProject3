@@ -5,7 +5,7 @@ using namespace std;
 void command_line(int argc, char ** argv, string & file1 , string & file2, int & k_organisms, int & flag )
 {
 
-	file1 = "input.txt";
+	file1 = "short_v.txt";
 	file2 = "query.txt";
 	file3 = "score.txt";
 	k_organisms = 100;
