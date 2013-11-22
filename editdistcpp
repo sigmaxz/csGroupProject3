@@ -1,0 +1,169 @@
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+//string r = "AACCTGACATACTT";
+//string q = "CCAGCGTCAACTT";
+
+string r = "AACCTAGTTC"; //reference sequence
+string q = "CCAGC";   //query sequence 
+
+const int size_r = 10; //include extra space for gap
+const int size_q = 5;
+
+double v[5][5]; //Matrix/2D array of similarity score
+double M[(size_r+1)*2][(size_q+1)*2]; //Matrix/2D array of edit-distance scores
+
+/*
+similarity score matrix
+  | - | A | G | C | T
+--|---|---|---|---|---
+- |   |   |   |   |
+--|---|---|---|---|---
+A |   |   |   |   |
+--|---|---|---|---|---
+G |   |   |   |   |
+--|---|---|---|---|---
+C |   |   |   |   |
+--|---|---|---|---|---
+T |   |   |   |   |
+*/
+
+
+void init()
+{
+	v[0][0] = 0; 	v[0][1] = 0;     v[0][2] = 0;     v[0][3] = 0;     v[0][4] = 0;
+	v[1][0] = 0; 	v[1][1] = 1;     v[1][2] = -0.1;  v[1][3] = -0.1;  v[1][4] = -0.15;
+	v[2][0] = 0;    v[2][1] = -0.1;  v[2][2] = 1;     v[2][3] = -0.15; v[2][4] = -0.1;
+	v[3][0] = 0;    v[3][1] = -0.1;  v[3][2] = -0.15; v[3][3] = 1;     v[3][4] = -0.1;	
+	v[4][0] = 0;    v[4][1] = -0.15; v[4][2] = -0.1;  v[4][3] = -0.1;  v[4][4] = 1;		
+}
+
+void printSimScore()
+{
+	for(int x = 0; x < 5 ; ++x)
+	{
+		for(int y = 0; y < 5; ++y)
+		{
+			cout << v[x][y] << '\t';
+		}
+		cout << endl;
+	}
+}
+
+void printEditDistMatrix()
+{
+	for(int i = 0; i < (size_r+1)*2; ++i)
+	{
+		for(int j = 0; j < (size_q+1)*2; ++j)
+		{
+			cout << M[i][j] << '\t';
+		}
+		cout << endl;
+	}
+}
+
+
+//converts DNA letter in string to appropriate int value;
+//isreference_file is true if the string is part of the reference file
+	//and false if it is the query file
+int L(bool isreference_file, int index)
+{	
+	if(!isreference_file)
+	{
+		switch(r[index])
+		{
+		case 'A':
+			return 1;
+			break;
+		case 'G':
+			return 2;
+			break;
+		case 'C':
+			return 3;
+			break;
+		case 'T':
+			return 4;
+			break;
+		default:
+			string tmp = isreference_file ? "true" : "false";
+			cerr << "Invalid string   " << tmp << "  " << index<< endl;
+			exit(0);
+		}
+	}
+	else
+	{
+		switch(q[index])
+		{
+		case 'A':
+			return 1;
+			break;
+		case 'G':
+			return 2;
+			break;
+		case 'C':
+			return 3;
+			break;
+		case 'T':
+			return 4;
+			break;
+		default:
+			string tmp = isreference_file ? "true" : "false";
+			cerr << "Invalid string   " << tmp << "  " << index<< endl;
+			exit(0);
+		}
+	}	
+}
+
+double max(double x, double y, double z)
+{
+	double m = x;
+	if(y > m)
+		m = y;
+	if(z > m)
+		m = z;
+	return m;
+}
+
+
+int maxScore()
+{
+	int size_a = q.size();
+	int size_b = r.size();
+
+	for(int i = 0; i < size_a; ++i)
+	{
+		M[i][0] = v[i][0] * i;
+	}
+
+	for(int j = 0; j < size_b; ++j)
+	{
+		M[0][j] = v[0][j] * j;
+	}
+	
+	for(int i = 1; i < size_a; ++i)
+	{
+		for(int j = 0; j < size_b; ++j)
+		{
+			double same_letter = M[i-1][j-1] + v[ L(0,i) ][ L(1,j) ];
+			double deletion    = M[i-1][j]   + v[0][ L(1,j) ];
+			double insertion   = M[i][j-1]   + v[ L(0,i) ][0];
+
+			M[i][j] = max(same_letter, deletion, insertion);
+		}
+	}
+}
+
+int main()
+{
+	init();
+	cout << endl;
+	cout << "similiarty score matrix" << endl;
+	printSimScore();
+	maxScore();
+	printSimScore();
+	
+return 0;
+}
+
