@@ -12,7 +12,5 @@ main.o: main.cpp file.cpp file.h
 run:
 	dnasearch > output.txt
 
-diff:
-	diff --ignore-all-space --ignore-blank-lines short_v.txt output.txt > results.txt
 clean:
 	rm main.o file.o dnasearch output.txt result.txt
