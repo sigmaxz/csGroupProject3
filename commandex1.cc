@@ -30,6 +30,14 @@ void command_line(int argc, char ** argv, string & file1 , string & file2, int &
 				string fs = (argv[i+2]);
 				flag = atoi(fs.c_str());
 			}
+			else if(argc == 5)
+			{
+				file1 = argv[1];
+				file2 = argv[2];
+				k_organisms = atoi(argv[3]);
+				flag = atoi(argv[4]);
+			}
+
 			else
 				cout << "error" << endl;
 	
