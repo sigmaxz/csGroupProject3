@@ -76,14 +76,18 @@ void File::write_file(const std::string & file_name)
     
 
 }
-
+/*Print the file's name and contents*/
 void File::print()
 {
-   /* for(std::vector<std::string> std::iterator it = content.begin(); it != NULL; ++it)
+    std::cout << "File name: " << file_name << endl;
+    
+    for(int i = 1; i <= content.size(), ++i)
     {
-        
+        if(i % 2 == 1)
+            std::cout << "Description: " << content[i - 1] << endl;
+        else
+            std::cout << "DNA sequence: " << endl << content[i - 1] << endl;
     }
-   */
 }
 
 std::ofstream& operator<<(std::ofstream& ofs, const File& myFile)
