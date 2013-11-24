@@ -3,14 +3,17 @@
 
 using namespace std;
 
-//string r = "AACCTGACATACTT";
-//string q = "CCAGCGTCAACTT";
+string r = "AACCTGACATCTT";
+string q = "CCAGCGTCAACTT";
 
-string r = "AACCTAGTTC"; //reference sequence
-string q = "CCAGC";   //query sequence 
+//string r = "AACCTGAC";
+//string q = "CCAGCGTC";
 
-const int size_r = 10; //include extra space for gap
-const int size_q = 5;
+//string r = "AGCT"; //reference sequence
+//string q = "ACGT";   //query sequence 
+
+const int size_r = 14; //include extra space for gap
+const int size_q = 14;
 
 double v[5][5]; //Matrix/2D array of similarity score
 double M[(size_r+1)*2][(size_q+1)*2]; //Matrix/2D array of edit-distance scores
@@ -33,11 +36,11 @@ T |   |   |   |   |
 
 void init()
 {
-	v[0][0] = 0; 	v[0][1] = 0;     v[0][2] = 0;     v[0][3] = 0;     v[0][4] = 0;
-	v[1][0] = 0; 	v[1][1] = 1;     v[1][2] = -0.1;  v[1][3] = -0.1;  v[1][4] = -0.15;
-	v[2][0] = 0;    v[2][1] = -0.1;  v[2][2] = 1;     v[2][3] = -0.15; v[2][4] = -0.1;
-	v[3][0] = 0;    v[3][1] = -0.1;  v[3][2] = -0.15; v[3][3] = 1;     v[3][4] = -0.1;	
-	v[4][0] = 0;    v[4][1] = -0.15; v[4][2] = -0.1;  v[4][3] = -0.1;  v[4][4] = 1;		
+	v[0][0] = -0.2;    v[0][1] = -0.2;  v[0][2] = -0.2;  v[0][3] = -0.2;  v[0][4] = -0.2;
+	v[1][0] = -0.2;    v[1][1] = 1;     v[1][2] = -0.1;  v[1][3] = -0.1;  v[1][4] = -0.15;
+	v[2][0] = -0.2;    v[2][1] = -0.1;  v[2][2] = 1;     v[2][3] = -0.15; v[2][4] = -0.1;
+	v[3][0] = -0.2;    v[3][1] = -0.1;  v[3][2] = -0.15; v[3][3] = 1;     v[3][4] = -0.1;	
+	v[4][0] = -0.2;    v[4][1] = -0.15; v[4][2] = -0.1;  v[4][3] = -0.1;  v[4][4] = 1;		
 }
 
 void printSimScore()
@@ -127,7 +130,7 @@ double max(double x, double y, double z)
 }
 
 
-int maxScore()
+void maxScore()
 {
 	int size_a = q.size();
 	int size_b = r.size();
@@ -153,7 +156,60 @@ int maxScore()
 			M[i][j] = max(same_letter, deletion, insertion);
 		}
 	}
+	
 }
+
+double findLargestScore()
+{
+	//find the strings of longest sequence
+	string A = "";
+	string B = "";
+	int i = q.size()-1;
+	int j = r.size()-1;
+
+	while(i > 0 || j > 0)
+	{
+		if(i > 0 && j > 0 && M[i-1][j-1] + v[ L(1,i) ][ L(0,j) ] == M[i][j] )
+		{
+			A+=q[i];
+			B+=r[j];
+			--i;
+			--j;
+		}
+		else if(i > 0 && M[i][j] == M[i-1][j] + v[i][0])
+		{
+			A+= r[i];
+			B+= '_';
+			--i;
+		}
+		else //if(j > 0 && M[i][j] == M[i][j-1] + v[0][j])
+		{
+			A+='_';
+			B+=r[j];
+			--j;
+		}		
+		//else
+		{
+
+		}
+	}
+
+	cout << "reference string : " << A << endl;
+	cout << "query string     : " << B << endl;
+
+	//find the largest number.
+	double highestscore = -9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.0; 
+	for(int x = 0; x < (size_r+1)*2; ++x)
+		{
+			for(int y = 0; y < (size_q+1)*2; ++y)
+			{	
+				if(M[x][y] > highestscore)
+					highestscore = M[x][y];
+			}
+		}
+	return highestscore;
+}
+
 
 int main()
 {
@@ -161,9 +217,12 @@ int main()
 	cout << endl;
 	cout << "similiarty score matrix" << endl;
 	printSimScore();
+	cout << endl;
 	maxScore();
-	printSimScore();
+	printEditDistMatrix();
+	cout << "Score : " << findLargestScore() << endl;
 	
 return 0;
 }
+
 
