@@ -3,8 +3,14 @@
 
 using namespace std;
 
-string r = "AACCTGACATCTT";
-string q = "CCAGCGTCAACTT";
+string r = "AAACCCGGGTAAACCCGGGTAAACCCGGGTAAACCCGGGTAAACCCGGGTAAACCCGGGTAAACCCGGGTAAACCCGGGTAAACCCGGGTAAACCCGGGT";
+string q =	"GGTAAACCCGGGTAAACCCTGGTAAACCCTGGTAAACCCTGGTAAACCCTGGTAAACCCTGGTAAACCCTGGTAAACCCTGGTAAACCCT";
+
+const int size_r = 100;
+const int size_q = 90;
+
+//string r = "AACCTGACATCTT";
+//string q = "CCAGCGTCAACTT";
 
 //string r = "AACCTGAC";
 //string q = "CCAGCGTC";
@@ -12,11 +18,11 @@ string q = "CCAGCGTCAACTT";
 //string r = "AGCT"; //reference sequence
 //string q = "ACGT";   //query sequence 
 
-const int size_r = 14; //include extra space for gap
-const int size_q = 14;
+//const int size_r = 13;
+//const int size_q = 13;
 
 double v[5][5]; //Matrix/2D array of similarity score
-double M[(size_r+1)*2][(size_q+1)*2]; //Matrix/2D array of edit-distance scores
+double M[(size_r+1)][(size_q+1)]; //Matrix/2D array of edit-distance scores
 
 /*
 similarity score matrix
@@ -57,13 +63,13 @@ void printSimScore()
 
 void printEditDistMatrix()
 {
-	for(int i = 0; i < (size_r+1)*2; ++i)
+	for(int i = 0; i < (size_r+1); ++i)
 	{
-		for(int j = 0; j < (size_q+1)*2; ++j)
+		for(int j = 0; j < (size_q+1); ++j)
 		{
 			cout << M[i][j] << '\t';
 		}
-		cout << endl;
+		cout << endl << endl;
 	}
 }
 
@@ -119,47 +125,107 @@ int L(bool isreference_file, int index)
 	}	
 }
 
-double max(double x, double y, double z)
+//double max(double x, double y, double z)
+//{
+//	double m = x;
+//	if(y > m)
+//		m = y;
+//	if(z > m)
+//		m = z;
+//	return m;
+//}
+
+
+void bestSequence()
 {
-	double m = x;
-	if(y > m)
-		m = y;
-	if(z > m)
-		m = z;
-	return m;
-}
+	//int size_q = q.size();
+	//int size_r = r.size();
 
+	double M_down[size_q][size_r];
+	double M_right[size_q][size_r];
+	bool M_gap[size_q][size_r];
 
-void maxScore()
-{
-	int size_a = q.size();
-	int size_b = r.size();
+	double gi = 0.2;  //Penalty for introducing a gap
+	double gc = 0.05; //Penalty for each additional gap added.
+	//bool prev_was_gap = false; //flag indicating if the previous column was a gap;
 
-	for(int i = 0; i < size_a; ++i)
+	for(int i = 0; i < size_q; ++i)
 	{
-		M[i][0] = v[i][0] * i;
+		M[i][0] = 0;
+		M_down[i][0] = 0;
+		M_right[i][0] = 0;
+		M_gap[i][0] = false;
 	}
 
-	for(int j = 0; j < size_b; ++j)
+	for(int j = 0; j < size_r; ++j)
 	{
-		M[0][j] = v[0][j] * j;
+		M[0][j] = 0;
+		M_down[0][j] = 0;
+		M_right[0][j] = 0;
+		M_gap[0][j] = false;
 	}
-	
-	for(int i = 1; i < size_a; ++i)
+	double down = 0;
+	double right = 0;
+
+	for(int i = 1; i < size_q; ++i)
 	{
-		for(int j = 0; j < size_b; ++j)
+		for(int j = 1; j < size_r; ++j)
 		{
-			double same_letter = M[i-1][j-1] + v[ L(0,i) ][ L(1,j) ];
-			double deletion    = M[i-1][j]   + v[0][ L(1,j) ];
-			double insertion   = M[i][j-1]   + v[ L(0,i) ][0];
+			down = 0;
+			if(M_gap[i-1][j] == true)
+				down = M_down[i-1][j] - gc;
+			else
+				down = M[i-1][j] - gi;
+			//M_down[i][j] = down_1 > down_2 ? down_1 : down_2;
 
-			M[i][j] = max(same_letter, deletion, insertion);
+			right = 0;
+			if(M_gap[i][j-1] == true)
+				right = M_right[i][j-1] - gc;
+			else
+				right = M[i][j-1] - gi;
+			//M_right[i][j] = right_1 > right_2 ? right_1 : right_2;
+
+			double m_1 = M[i-1][j-1] + v[ L(true, i)][ L(false, j)];
+			double m_2 = M_down[i][j];
+			double m_3 = M_right[i][j];
+			//double tmp = m_2 > m_3 ? m_2 : m_3;
+			//M[i][j] = m_1 > tmp ? m_1 : tmp; 
+			if(m_1 > m_2 && m_1 > m_3)
+			{
+				M[i][j] = m_1;
+				M_gap[i][j] = false;
+			}
+			else if(m_2 > m_1 && m_2 > m_3)
+			{
+				M[i][j] = m_2;
+				M_gap[i][j] = true;
+			}
+			else 
+			{
+				M[i][j] = m_3;
+				M_gap[i][j] = true;
+			}
 		}
 	}
-	
 }
 
-double findLargestScore()
+double findHightestScore()
+{
+	int tsize_r = r.size();
+	int tsize_q = q.size();
+	double highestscore = -9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.0; 
+	for(int i = 1; i < tsize_r; ++i)
+	{
+		for(int j = 1; j < tsize_q; ++j)
+		{
+			if(M[i][j] > highestscore)
+				highestscore = M[i][j];
+		}
+	}
+	return highestscore;
+}
+
+void findLongestString()
 {
 	//find the strings of longest sequence
 	string A = "";
@@ -188,41 +254,27 @@ double findLargestScore()
 			B+=r[j];
 			--j;
 		}		
-		//else
-		{
-
-		}
 	}
-
-	cout << "reference string : " << A << endl;
-	cout << "query string     : " << B << endl;
-
-	//find the largest number.
-	double highestscore = -9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.0; 
-	for(int x = 0; x < (size_r+1)*2; ++x)
-		{
-			for(int y = 0; y < (size_q+1)*2; ++y)
-			{	
-				if(M[x][y] > highestscore)
-					highestscore = M[x][y];
-			}
-		}
-	return highestscore;
+	cout << "ref   : " << A << endl;
+	cout << "query : " << B << endl;
 }
 
 
 int main()
-{
+{	
+
 	init();
 	cout << endl;
 	cout << "similiarty score matrix" << endl;
-	printSimScore();
+	//printSimScore();
 	cout << endl;
-	maxScore();
-	printEditDistMatrix();
-	cout << "Score : " << findLargestScore() << endl;
+	bestSequence();
+	//printEditDistMatrix();
+	cout << endl << "Highest score " << findHightestScore() << endl;
+	findLongestString();
 	
 return 0;
 }
+
 
 
