@@ -37,8 +37,7 @@ void File::read_file(const std::string & file_name)
 {
     std::ifstream in;
     in.open(file_name.c_str());
-    if(!in)
-    {
+    if(!in) {
         std::cout << "Could not open file for reading!" << std::endl;
         exit(1);
     }
@@ -46,19 +45,14 @@ void File::read_file(const std::string & file_name)
     std::string first_line, sub_str, full_str = "";
     getline(in, first_line);
     content.push_back(first_line);
-    std::cout << first_line; 
-    while(!in.eof())
-    {
+    
+    while(!in.eof()) {
         getline(in, sub_str);
-        if(sub_str.size() != 1)
-        {
-            //std::cout << sub_str;
-            full_str = full_str + sub_str;
-            //std::cout << "Hi";
+        if(sub_str.size() != 1) {
 
+            full_str = full_str + sub_str;
         }
     }
-    std::cout << full_str;
     content.push_back(full_str);
     in.close();
 }
@@ -67,26 +61,22 @@ void File::write_file(const std::string & file_name)
 {
     std::ofstream out;
     out.open(file_name.c_str());
-    if(!out)
-    {
+    if(!out) {
         std::cout << "Cannot open file for writing!" << std::endl;
         exit(1);
     }
     std::string str;
-    
-
 }
 /*Print the file's name and contents*/
 void File::print()
 {
-    std::cout << "File name: " << file_name << endl;
+    std::cout << "File name: " << file_name << std::endl;
     
-    for(int i = 1; i <= content.size(), ++i)
-    {
+    for(int i = 1; i <= content.size(), ++i) {
         if(i % 2 == 1)
-            std::cout << "Description: " << content[i - 1] << endl;
+            std::cout << "Description: " << content[i - 1] << std::endl;
         else
-            std::cout << "DNA sequence: " << endl << content[i - 1] << endl;
+            std::cout << "DNA sequence: " << std::endl << content[i - 1] << std::endl;
     }
 }
 
