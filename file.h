@@ -1,3 +1,5 @@
+
+ 
 #ifndef __FILE_H__
 #define __FILE_H__
  
@@ -12,58 +14,41 @@ in a string.
 class File
 {
     private:
-        std::string file_name;
-		std::string description;
-        std::string content;
-		std::string reference;
-		std::string query;
+        std::string file_name;                    //name of file
+        std::vector<std::string> descriptions;    //vector of c++ strings of descriptions for each gene
+        std::vector<std::string> reference;       //vector of c++ string holding the DNA sequence for each gene
+        std::string query;                        //the DNA sequence for the query
 /*
-    May need for handling multiple descriptions of organisms for the
-    output.
+May need for handling multiple descriptions of organisms for the
+output.
 */
-// vector<string> descriptions
+// 
     public:
         File();
         File(const std::string & file_name);
-        File(const std::string & file_name, const std::string & content);
  
         std::string get_file_name();
-        std::string get_file_content();
-		std::string get_query();
+        std::string get_query();
         void set_file_name(const std::string & new_file_name);
         void set_content(std::string new_content);
  
         void read_file(char *file_name);
-		void read_query(const std::string & file_name);
+        void read_query(const std::string & file_name);
         void write_file(const std::string & file_name);
+        
+        std::string getReference(int index);
+        std::string getDescription(int index);
+        int getRefSize();
+        int getQuerySize();
  
         void print();
 
-		std::string getReference()
-		{
-			return reference;
-		}
-
-		int getRefSize()
-		{
-			return reference.size();
-		}
-
-		int getContentSize()
-		{
-			return content.size();
-		}
-
-		int getQuerySize()
-		{
-			return query.size();
-		}
+                
  
 };
 #endif
 
 //std::ostream& operator<<(std::ostream& ofs, const File& myFile);
 //std::fstream& operator>>(std::fstream& fs, const File& myFile);
- 
 
  
