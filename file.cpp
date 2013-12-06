@@ -10,87 +10,88 @@ File::File(const std::string & file_name)
 :file_name(file_name)
 {}
 
-File::File(const std::string & file_name, const std::string & content)
-:file_name(file_name), content(content)
-{}
-
 std::string File::get_file_name()
 {
     return file_name;
 }
 
-std::string File::get_file_content()
-{
-    return content;
-}
-
 std::string File::get_query()
 {
-	return query;
+    return query;
 }
+
 void File::set_file_name(const std::string & new_file_name)
 {
     file_name = new_file_name;
-    return;
-}
-void File::set_content(std::string new_content)
-{
-	
-    content = new_content;
-    return;
 }
 
 void File::read_file(char *file_name)
 {
-	std::ifstream file(file_name, std::ios::in);
-	if(file)
-	{
-		std::string file_content;
-		file.seekg(0, std::ios::end);
-		file_content.resize(file.tellg());
-		file.seekg(0, std::ios::beg);
-		file.read(&file_content[0], file_content.size());
-		file.close();
-		content = file_content;
-		std::cout << content.size() << std::endl;
+        std::ifstream file(file_name, std::ios::in);
+        if(file)
+        {
+        		//read in the entire contents of the reference file into one string
+                std::string file_content;
+                file.seekg(0, std::ios::end);
+                file_content.resize(file.tellg());
+                file.seekg(0, std::ios::beg);
+                file.read(&file_content[0], file_content.size());
+                file.close();
+              
+                unsigned int i = 0;      //current location/index of file_content
+             	unsigned int file_size = file_content.size();
+             	
+             	//make sure the index is at the start of the first description
+             	while( file_content[i] != '>')
+             		++i;
+             	
+             	//parse the string holding the entire file content
+             	while( i < file_size)
+             	{
+             		unsigned int d_start = i; //starting index of description
+             		std::string tmp_d;     //tmp string holding the current description being parsed
+                	
+                	//parse current description and insert it into the vector
+                	while(file_content[i] != 13 && file_content[i] != 10 )
+                        tmp_d += file_content[i];
+					descriptions.push_back(tmp_d);
+					
+					++i; //skip past end line char
 
-		int i = 0; 
-		while(file_content[i] != 13 && file_content[i] != 10)
-			++i;
+					//parse current DNA sequence and insert it into the vector
+					std::string tmp_reference;     //tmp string holding the current DNA sequence being parsed
+                	while(file_content[i] != 13 && file_content[i] != 10)
+                	{
+                        if(file_content[i] != ' ' && file_content[i] != 10 && file_content[i] != 13 && file_content[i] != 0)
+                        	tmp_reference += file_content[i];
+                        ++i;
+                	}	
+                	reference.push_back(tmp_reference);
+               	}
 
-		description = content.substr(0, i);
-
-	
-		for(; i < file_content.size(); ++i)
-		{
-			if(file_content[i] != ' ' && file_content[i] != 10 && file_content[i] != 13 && file_content[i] != 0)
-				reference += file_content[i];
-		}
-
-	}
+        }
 }
 
 
 
 void File::read_query(const std::string & file_name)
 {
-	std::ifstream in;
-	in.open(file_name.c_str());
+    std::ifstream in;
+    in.open(file_name.c_str());
     if(!in)
     {
         std::cout << "Could not open file for reading!" << std::endl;
         exit(1);
     }
-	std::string line;
-	while(!in.eof())
-	{
-		getline(in, line);
-		if(line.size() > 1)
-		{
-			query += line;
-		}
-	}
-
+        std::string line;
+        while(!in.eof())
+        {
+                getline(in, line);
+                if(line.size() > 1)
+                {
+                        query += line;
+                }
+        }
 }
 
 void File::write_file(const std::string & file_name)
@@ -104,6 +105,29 @@ void File::write_file(const std::string & file_name)
     }
     std::string str;
 }
+
+//returns the string of a DNA sequence 
+std::string File::getReference(int index)
+{
+	return reference[index];
+}
+
+//returns the string of a description
+std::string File::getDescription(int index)
+{
+	return descriptions[index];
+}
+
+int File::getRefSize()
+{
+	return reference.size();
+}
+
+int File::getQuerySize()
+{
+	return query.size();
+}
+
 
 //std::ofstream& operator<<(std::ofstream& ofs, const File& myFile)
 //{}
