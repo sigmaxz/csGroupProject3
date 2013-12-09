@@ -1,5 +1,3 @@
-
- 
 #ifndef __FILE_H__
 #define __FILE_H__
  
@@ -32,7 +30,7 @@ output.
         void set_file_name(const std::string & new_file_name);
         void set_content(std::string new_content);
  
-        void read_file(char *file_name);
+        void read_file(const char *file_name);
         void read_query(const std::string & file_name);
         void write_file(const std::string & file_name);
         
@@ -40,6 +38,8 @@ output.
         std::string getDescription(int index);
         int getRefSize();
         int getQuerySize();
+		int getLengthOfRefString(int index);
+
  
         void print();
 
@@ -50,5 +50,3 @@ output.
 
 //std::ostream& operator<<(std::ostream& ofs, const File& myFile);
 //std::fstream& operator>>(std::fstream& fs, const File& myFile);
-
- 
