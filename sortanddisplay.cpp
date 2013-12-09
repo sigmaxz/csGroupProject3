@@ -1,5 +1,7 @@
+#ifndef SORTANDDISPLAY
+#define SORTANDDISPLAY
+
 #include <iostream>
-#include <string>
 #include <vector>
 #include <queue>
 #include <stack>
@@ -7,8 +9,9 @@
 #include <sstream>
 #include <iomanip>
 
-const int BUF_SIZE = 3;
-const int DASHES = 80;
+using namespace std;
+
+const int UNDERSCORES = 80;
 
 struct Alignment
 {
@@ -17,11 +20,14 @@ struct Alignment
     std::string query_alignment;
     std::string description;
     
-    Alignment(const double & score, const std::string & ref, const std::string & que,
+    Alignment(const double & score, const std::string & ref, const std::string & que, 
                 const std::string & des)
     :score(score), ref_alignment(ref), query_alignment(que), description(des)
     {}
 };
+
+
+
 
 bool operator<(const Alignment& lhs, const Alignment& rhs)
 {
@@ -32,50 +38,36 @@ bool operator>(const Alignment& lhs, const Alignment& rhs)
     return lhs.score > rhs.score;
 }
 typedef std::priority_queue<Alignment,std::vector<Alignment>,std::greater<Alignment> > mypq_type;
-void sort(const std::vector<Alignment> & vec, int k_organisms, mypq_type & pq);
+void pqsort(const std::vector<Alignment> & vec, int n, mypq_type & pq);
 void display(const mypq_type & pq, const int & flag);
 
-int flag = 1;
-int main ()
+class SortAlignments
 {
-    std::vector<Alignment> v;
-    double scores[] = { 345.14, 308.05, 124.76 };
-    std::string ref[] = { "ATGCAGTCGAGCTABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBATGCAGTCGAGCTABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", "AGCTCCAGCAT", "ACGCGAGSTCA" };
-    std::string query[] ={"ATGCTAGCATCGATCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCATGCTAGCATCGATCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", "AGCTCGATCGA", "AGCGCAGTGAA" };
-    std::string desc[] = { ">gi|89036899|ref|NT_113923.1| Homo sapiens unplaced genomic contig, GRCh37.p13 Primary Assembly", "Kiwi", "Strawberry" };
-    for(int i = 0; i < BUF_SIZE; ++i)
-    {
-        v.push_back(Alignment(scores[i], ref[i], query[i], desc[i]));
-    }
-    mypq_type mypq;
-    sort(v, BUF_SIZE, mypq);
-    mypq_type mypq_temp = mypq;
-    display(mypq_temp, flag);
-  return 0;
-}
+public:
+	mypq_type pq;
 
-void sort(const std::vector<Alignment>&vec, int k_organisms, mypq_type &pq)
-{
-    int i = 0;
-    // fills the priority queue to the input size of k_organisms
-    while(pq.size() < k_organisms)
-    {
-        pq.push(vec[i]);
-        i++;
-    }
-    // goes through the rest of the vector and if it belongs in priority queue, then insert
-    for(; i < vec.size(); i++)
-    {
-        if(vec[i].score > pq.top().score)
-        {
-            pq.pop();
-            pq.push(vec[i]);
-        }
-    }
-}
+	void pqsort(std::vector<Alignment> vec, int n)
+	{
+		int i = 0;
+		// fills the priority queue to the input size n
+		while(pq.size() < n) 
+		{
+			pq.push(vec[i]);
+			i++;
+		}
+		// goes through the rest of the vector and if it belongs in priority queue, then insert
+		for(; i < vec.size(); i++)
+		{
+			if(vec[i].score > pq.top().score)
+			{ 
+				pq.pop();
+				pq.push(vec[i]);
+			}
+		}
+	}
 
-void display(const mypq_type & pq, const int & flag)
-{
+	void display(const int & flag)
+	{
         mypq_type temp_pq = pq;
         /*Transfer contents of pq into stack*/
         std::stack<Alignment> top_list;
@@ -102,7 +94,8 @@ void display(const mypq_type & pq, const int & flag)
 
         for(int i = 0; i < size; ++i)
         {
-            Alignment temp = top_list.top();           
+            Alignment temp = top_list.top();
+			std::cout << std::left;
             std::cout << std::setw(setw1) << i + 1 << " * ";
             std::cout << std::left;
             std::cout << std::setw(setw2);
@@ -132,15 +125,149 @@ void display(const mypq_type & pq, const int & flag)
                 }
                 std::cout << "\n";
                 top_list.pop();
-                for(int a = 0; a < DASHES; ++a)
-                    std::cout << "-";
-                std::cout << "\n";
+                for(int a = 0; a < UNDERSCORES; ++a)
+                    std::cout << "_";
+                std::cout << std::endl;
             }
             else
                 top_list.pop();
-
+			std::cout << std::endl;
         }
+	}
+};
+
+void command_line(int argc, char ** argv, string & file1 , string & file2, string & file3, int & k_organisms, int & flag )
+{
+
+    file1 = "short_v.txt";
+    file2 = "query.txt";
+    file3 = "scorefile.txt";
+    k_organisms = 100;
+    flag = 1;
+        
+    for(int i = 1; i < argc; i++)
+    {
+        if(*(argv[i]) == 'd')
+        {
+			file1 = argv[i+2];
+        }
+        else if(*(argv[i]) == 'q')
+        {
+            file2 = argv[i+2];
+        }
+        else if(*(argv[i]) == 's')
+        {
+            file3 = argv[i+2];
+        }
+
+        else if(*(argv[i]) == 'n')
+        {
+            string ks = (argv[i+2]);
+            k_organisms = atoi(ks.c_str());
+        }
+        else if(*(argv[i]) == 'a')
+        {
+            string fs = (argv[i+2]);
+            flag = atoi(fs.c_str());
+        }
+        else if(argc == 5 || argc == 6) 
+        {
+            file1 = argv[1];
+            file2 = argv[2];
+            k_organisms = atoi(argv[3]);
+            flag = atoi(argv[4]);
+            if(argc == 6)
+            {
+                file3 = argv[5];
+            }
+        }
+
+
+        else
+        cout << "error" << endl;
+        
+        i = i+2;
+    }
 }
 
+void initS( double (& sarr)[18] ,ifstream &in)
+{
+    double temp;
+    for(size_t i = 0; i < 18; i++)
+    {
+        if(!in.good())
+        {
+            std:cout<< "error score grab\n";
+        }
+        else
+        {
+            in >> temp;
+            sarr[i] = temp;
+        }
+    }
+}
 
-
+float newscore(char a, char b ,float (&sarr)[18])
+{
+    switch(a)
+    {
+        case 'A':
+            switch(b)
+            {
+                    case 'A': return sarr[0];
+                    break;
+                    case 'C': return sarr[1];
+                    break;
+                    case 'T': return sarr[2];
+                    break;
+                    case 'G': return sarr[3];
+                    break;
+                    default: break;
+            }
+        break;
+        case 'C':
+                switch(b)
+                {
+                        case'A': return sarr[4];
+                        break;
+                        case 'C': return sarr[5];
+                        break;
+                        case 'T': return sarr[6];
+                        break;
+                        case 'G': return sarr[7];
+                        break;
+                        default: break;
+                }
+        break;
+        case 'T':
+                switch(b)
+                {
+                        case'A': return sarr[8];
+                        break;
+                        case 'C': return sarr[9];
+                        break;
+                        case 'T': return sarr[10];
+                        break;
+                        case 'G': return sarr[11];
+                        break;
+                        default: break;
+                }
+        break;
+        case 'G':
+                switch(b)
+                {
+                        case 'A': return sarr[12];
+                        break;
+                        case 'C': return sarr[13];
+                        break;
+                        case'T': return sarr[14];
+                        break;
+                        case 'G': return sarr[15];
+                        break;
+                        default: break;
+                }
+        break;
+        default: break;
+    }
+}
+#endif
