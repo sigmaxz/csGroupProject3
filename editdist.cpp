@@ -62,57 +62,6 @@ public:
 			delete [] M_down;
 			delete [] M_right;
 		}
-        //void init()
-        //{
-        //    v[0][0] = -0.2f; v[0][1] = -0.2f; v[0][2] = -0.2f; v[0][3] = -0.2f; v[0][4] = -0.2f;
-        //    v[1][0] = -0.2f; v[1][1] = 1.0f; 	v[1][2] = -0.1f; v[1][3] = -0.1f; v[1][4] = -0.15f;
-        //    v[2][0] = -0.2f; v[2][1] = -0.1f; v[2][2] = 1.0f; v[2][3] = -0.15f; v[2][4] = -0.1f;
-        //    v[3][0] = -0.2f; v[3][1] = -0.1f; v[3][2] = -0.15f; v[3][3] = 1.0f; v[3][4] = -0.1f;
-        //    v[4][0] = -0.2f; v[4][1] = -0.15f; v[4][2] = -0.1f; v[4][3] = -0.1f; v[4][4] = 1.0f;
-        //}
-
-		//TODO: remove
-        void printSimScore()
-        {
-                for(int x = 0; x < 5 ; ++x)
-                {
-                        for(int y = 0; y < 5; ++y)
-                        {
-                                        cout << v[x][y] << '\t';
-                        }
-                        cout << endl;
-                }
-        }
-
-		//TODO: remove
-        void printEditDistMatrix()
-        {
-				cout << "Edit dist matrix" << endl;
-                for(int i = 0; i < (size_r+1); ++i){
-                        for(int j = 0; j < (size_q+1); ++j){
-                                        cout << M[i][j] << '\t';}
-                        cout << endl << endl;}
-        }
-
-		//TODO: remove
-        void printDownMatrix()
-        {
-			cout << "Down matrix" << endl;
-            for(int i = 0; i < (size_r+1); ++i){
-                for(int j = 0; j < (size_q+1); ++j){
-                        cout << M_down[i][j] << '\t';}
-                    cout << endl << endl;}
-        }
-
-		//TODO: remove
-        void printRightMatrix()
-        {
-				cout << "right matrix" << endl;
-                for(int i = 0; i < (size_r+1); ++i){
-                        for(int j = 0; j < (size_q+1); ++j){
-                                       cout << M_right[i][j] << '\t'; }
-                        cout << endl << endl;}
-        }
 
 
         //converts DNA letter in string to appropriate int value;
@@ -181,12 +130,7 @@ public:
 
         void bestSequence()
         {
-        	//cout << "size_r : " << r.size() << endl;
             float current_total = 0;
-
-           // float gi = 0.2f; //Penalty for introducing a gap
-            //float gc = 0.05f; //Penalty for each additional gap added.
-
             float down1 = 0;
             float down2 = 0;
             float right1 = 0;
@@ -256,21 +200,14 @@ public:
             }
 			
 			findLongestString(r_end,q_end);
-			//put info about this match found in struct and pass it to the sorting queue;
 			Alignment currentMatch((double)highestscore, A, B, description);
 
-			
-
-
-        	
+				
             return currentMatch;
 		}
 
         void findLongestString(int r_end, int q_end)
         {
-			//float gi = 0.2f; //Penalty for introducing a gap
-			//float gc = 0.05f; //Penalty for each additional gap added.
-            //find the strings of longest sequence
             int i = r_end;
             int j = q_end;
 					
