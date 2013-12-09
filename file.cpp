@@ -25,7 +25,7 @@ void File::set_file_name(const std::string & new_file_name)
     file_name = new_file_name;
 }
 
-void File::read_file(char *file_name)
+void File::read_file(const char *file_name)
 {
         std::ifstream file(file_name, std::ios::in);
         if(file)
@@ -38,6 +38,7 @@ void File::read_file(char *file_name)
                 file.read(&file_content[0], file_content.size());
                 file.close();
               
+              	//std::cout << "file_content size " << file_content.size() << std::endl;
                 unsigned int i = 0;      //current location/index of file_content
              	unsigned int file_size = file_content.size();
              	
@@ -53,7 +54,10 @@ void File::read_file(char *file_name)
                 	
                 	//parse current description and insert it into the vector
                 	while(file_content[i] != 13 && file_content[i] != 10 )
+                	{
                         tmp_d += file_content[i];
+                        ++i;
+                    }
 					descriptions.push_back(tmp_d);
 					
 					++i; //skip past end line char
@@ -63,12 +67,19 @@ void File::read_file(char *file_name)
                 	while(file_content[i] != 13 && file_content[i] != 10)
                 	{
                         if(file_content[i] != ' ' && file_content[i] != 10 && file_content[i] != 13 && file_content[i] != 0)
+                        {
                         	tmp_reference += file_content[i];
+                        }
                         ++i;
                 	}	
                 	reference.push_back(tmp_reference);
+                	++i;
                	}
-
+        }
+        else
+        {
+        	std::cerr << "error reading file" << std::endl;
+        	exit(0);
         }
 }
 
@@ -128,9 +139,15 @@ int File::getQuerySize()
 	return query.size();
 }
 
+int File::getLengthOfRefString(int index)
+{
+	return reference[index].size();
+}
+
 
 //std::ofstream& operator<<(std::ofstream& ofs, const File& myFile)
 //{}
 //
 //std::fstream& operator>>(std::fstream& fs, const File& myFile)
 //{}
+
